@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+model Profile {
+  id         String   @id @default(uuid())
+  full_name  String
+  avatar_url String?
+  email      String
+  created_at DateTime @default(now())
+
+  communicators_created CaregiverCommunicator[] @relation("CaregiverLinks")
+  acknowledged_events   Event[]                 @relation("AcknowledgedBy")
+  communicators         Communicator[]          @relation("CreatedBy")
+
+  @@map("profiles")
+}
+
+model Communicator {
+  id         String   @id @default(uuid())
+  name       String
+  avatar_url String?
+  created_by String
+  created_at DateTime @default(now())
+
+  creator         Profile                 @relation("CreatedBy", fields: [created_by], references: [id])
+  caregiver_links CaregiverCommunicator[] @relation("CommunicatorLinks")
+  button_boards   ButtonBoard[]
+  events          Event[]
+
+  @@map("communicators")
+}
+
+model CaregiverCommunicator {
+  id              String   @id @default(uuid())
+  caregiver_id    String
+  communicator_id String
+  relationship    String
+  created_at      DateTime @default(now())
+
+  caregiver    Profile      @relation("CaregiverLinks", fields: [caregiver_id], references: [id])
+  communicator Communicator @relation("CommunicatorLinks", fields: [communicator_id], references: [id])
+
+  @@map("caregiver_communicator")
+}
+
+model ButtonBoard {
+  id              String   @id @default(uuid())
+  communicator_id String
+  name            String
+  is_active       Boolean  @default(true)
+  created_at      DateTime @default(now())
+
+  communicator Communicator @relation(fields: [communicator_id], references: [id])
+  buttons      Button[]
+
+  @@map("button_boards")
+}
+
+enum ButtonCategory {
+  feeling
+  need
+}
+
+enum AcknowledgmentType {
+  on_my_way
+  give_me_a_moment
+  i_hear_you
+}
+
+model Button {
+  id         String         @id @default(uuid())
+  board_id   String
+  label      String
+  image_url  String?
+  category   ButtonCategory
+  color      String
+  position   Int
+  tts_text   String?
+  created_at DateTime       @default(now())
+
+  board  ButtonBoard @relation(fields: [board_id], references: [id])
+  events Event[]
+
+  @@map("buttons")
+}
+
+model Event {
+  id                  String              @id @default(uuid())
+  button_id           String
+  communicator_id     String
+  pressed_at          DateTime            @default(now())
+  acknowledged_at     DateTime?
+  acknowledged_by     String?
+  acknowledgment_type AcknowledgmentType?
+
+  button_label     String
+  button_category  ButtonCategory
+  button_image_url String?
+  notes            String?
+
+  button       Button       @relation(fields: [button_id], references: [id])
+  communicator Communicator @relation(fields: [communicator_id], references: [id])
+  acknowledger Profile?     @relation("AcknowledgedBy", fields: [acknowledged_by], references: [id])
+
+  @@map("events")
+}
