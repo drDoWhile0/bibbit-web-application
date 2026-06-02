@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 export default function LoginForm() {
     const router = useRouter();
     const [tab, setTab] = useState<'login' | 'signup'>('login')
+    const [fullName, setFullName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState<string | null>(null)
@@ -17,17 +18,39 @@ export default function LoginForm() {
         setLoading(true)
         const supabase = createClient()
 
-        const { error } =
-            tab === 'login'
-                ? await supabase.auth.signInWithPassword({ email, password })
-                : await supabase.auth.signUp({ email, password })
+        if (tab === 'login') {
+            const { error } = await supabase.auth.signInWithPassword({ email, password })
+            if (error) {
+                setError(error.message)
+                setLoading(false)
+                return
+            }
+        } else {
+            const { data, error } = await supabase.auth.signUp({ email, password })
+            if (error) {
+                setError(error.message)
+                setLoading(false)
+                return
+            }
 
-        if (error) {
-            setError(error.message)
-            setLoading(false)
-            return
+            const user = data.user
+            if (user) {
+                const { error: profileError } = await supabase
+                    .from('profiles')
+                    .insert({
+                        id: user.id,
+                        full_name: fullName,
+                        email: user.email,
+                    })
+
+                if (profileError) {
+                    setError(profileError.message)
+                    setLoading(false)
+                    return
+                }
+            }
         }
-        
+
         router.push('/dashboard')
     }
 
@@ -39,8 +62,8 @@ export default function LoginForm() {
                     onClick={() => setTab('login')}
                     className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
                         tab === 'login'
-                        ? 'bg-[#4A7C59] text-white shadow-sm'
-                        : 'text-[#6B7280]'
+                            ? 'bg-[#4A7C59] text-white shadow-sm'
+                            : 'text-[#6B7280]'
                     }`}
                 >
                   Login
@@ -49,13 +72,26 @@ export default function LoginForm() {
                     onClick={() => setTab('signup')}
                     className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
                         tab === 'signup'
-                        ? 'bg-[#4A7C59] text-white shadow-sm'
-                        : 'text-[#6B7280]'
+                            ? 'bg-[#4A7C59] text-white shadow-sm'
+                            : 'text-[#6B7280]'
                     }`}
                 >
                   Sign Up
                 </button>
             </div>
+
+            {/* Full name — signup only */}
+            {tab === 'signup' && (
+                <div className="mb-4">
+                <input
+                    type="text"
+                    placeholder="Full name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-sm focus:outline-none focus:ring-2 focus:ring-[#4A7C59] placeholder:text-[#9CA3AF]"
+                />
+                </div>
+            )}
 
             {/* Email */}
             <div className="mb-4">
