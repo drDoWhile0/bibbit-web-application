@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { createProfile } from '@/app/auth/actions'
 
 export default function LoginForm() {
     const router = useRouter();
@@ -35,16 +36,10 @@ export default function LoginForm() {
 
             const user = data.user
             if (user) {
-                const { error: profileError } = await supabase
-                    .from('profiles')
-                    .insert({
-                        id: user.id,
-                        full_name: fullName,
-                        email: user.email,
-                    })
-
-                if (profileError) {
-                    setError(profileError.message)
+                try {
+                    await createProfile(user.id, fullName, user.email!)
+                } catch (err: any) {
+                    setError(err.message)
                     setLoading(false)
                     return
                 }
@@ -83,13 +78,13 @@ export default function LoginForm() {
             {/* Full name — signup only */}
             {tab === 'signup' && (
                 <div className="mb-4">
-                <input
-                    type="text"
-                    placeholder="Full name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-sm focus:outline-none focus:ring-2 focus:ring-[#4A7C59] placeholder:text-[#9CA3AF]"
-                />
+                    <input
+                        type="text"
+                        placeholder="Full name"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-sm focus:outline-none focus:ring-2 focus:ring-[#4A7C59] placeholder:text-[#9CA3AF]"
+                    />
                 </div>
             )}
 
@@ -145,10 +140,10 @@ export default function LoginForm() {
             {/* Social */}
             <div className="flex flex-col gap-3">
                 <button className="w-full py-3 border border-[#E5E7EB] rounded-xl text-sm font-medium text-[#374151] hover:bg-[#F9FAFB] transition-colors">
-                  G &nbsp; Google
+                    G &nbsp; Google
                 </button>
                 <button className="w-full py-3 border border-[#E5E7EB] rounded-xl text-sm font-medium text-[#374151] hover:bg-[#F9FAFB] transition-colors">
-                  🍎 &nbsp; Apple
+                    🍎 &nbsp; Apple
                 </button>
             </div>
 
