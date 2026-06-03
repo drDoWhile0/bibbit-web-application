@@ -2,7 +2,7 @@ import Image from 'next/image'
 
 interface Props {
     name: string
-    avatarUrl: string
+    avatarUrl?: string
     isSelected?: boolean
     onClick?: () => void
 }
@@ -18,7 +18,7 @@ export default function CommunicatorCard({ name, avatarUrl, isSelected, onClick 
             }`}
         >
             <Image
-                src={avatarUrl}
+                src={avatarUrl ?? '/assets/companions/green_default.png'}
                 alt={name}
                 width={72}
                 height={72}
