@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { getOrCreateBoard, createButton } from '../actions'
+import { getOrCreateBoard } from '../actions'
 import ButtonForm from '@/components/board/ButtonForm'
 import { Plus } from 'lucide-react'
 import DragGrid from '@/components/board/DragGrid'
@@ -61,7 +61,10 @@ export default function BoardEditorPage() {
         </button>
       </div>
 
-      <DragGrid initialButtons={buttons} />
+      <DragGrid
+        buttons={buttons}
+        onReorder={setButtons}
+      />
 
       {showForm && board && (
         <ButtonForm
