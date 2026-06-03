@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from "react"
 import {
     DndContext,
     closestCenter,
@@ -8,6 +7,7 @@ import {
     useSensor,
     useSensors,
     DragEndEvent,
+    KeyboardSensor,
 } from '@dnd-kit/core'
 import {
     SortableContext,
@@ -16,7 +16,6 @@ import {
     useSortable,
     arrayMove,
 } from '@dnd-kit/sortable'
-import { KeyboardSensor } from "@dnd-kit/core"
 import { CSS } from "@dnd-kit/utilities"
 import { updateButtonPositions } from "@/app/dashboard/communicators/[id]/actions"
 
@@ -24,8 +23,10 @@ interface Button {
     id: string
     label: string
     image_url?: string
+    category: 'feeling' | 'need'
     color: string
     position: number
+    tts_text?: string
 }
 
 function SortableButton({ btn }: { btn: Button }) {
@@ -55,14 +56,11 @@ function SortableButton({ btn }: { btn: Button }) {
 }
 
 interface Props {
-    initialButtons: Button[]
+    buttons: Button[]
+    onReorder: (reordered: Button[]) => void
 }
 
-export default function DragGrid({ initialButtons }: Props) {
-    const [buttons, setButtons] = useState(() =>
-        [...initialButtons].sort((a, b) => a.position - b.position)
-    )
-
+export default function DragGrid({ buttons, onReorder }: Props) {
     const sensors = useSensors(
         useSensor(PointerSensor),
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -76,7 +74,7 @@ export default function DragGrid({ initialButtons }: Props) {
         const newIndex = buttons.findIndex((b) => b.id === over.id)
         const reordered = arrayMove(buttons, oldIndex, newIndex)
 
-        setButtons(reordered)
+        onReorder(reordered)
 
         const updates = reordered.map((btn, index) => ({ id: btn.id, position: index }))
         await updateButtonPositions(updates)
@@ -84,13 +82,13 @@ export default function DragGrid({ initialButtons }: Props) {
 
     return (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={buttons.map((b) => b.id)} strategy={rectSortingStrategy}>
-            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-4">
-            {buttons.map((btn) => (
-                <SortableButton key={btn.id} btn={btn} />
-            ))}
-            </div>
-        </SortableContext>
+            <SortableContext items={buttons.map((b) => b.id)} strategy={rectSortingStrategy}>
+                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-4">
+                    {buttons.map((btn) => (
+                        <SortableButton key={btn.id} btn={btn} />
+                    ))}
+                </div>
+            </SortableContext>
         </DndContext>
     )
 }
