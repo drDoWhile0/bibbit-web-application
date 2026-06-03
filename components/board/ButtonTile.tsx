@@ -2,11 +2,13 @@
 
 import { useState } from "react"
 import { logEvent } from "@/app/board/[communicatorId]/actions"
+import { speak } from "@/lib/tts"
 
 interface Button {
     id: string
     label: string
     image_url?: string
+    tts_text?: string
     category: 'feeling' | 'need'
     color: string
 }
@@ -22,6 +24,8 @@ export default function ButtonTile({ btn, communicatorId }: Props) {
     const handleTap = async () => {
         if (pressed) return
         setPressed(true)
+
+        speak(btn.tts_text ?? btn.label)
 
         await logEvent(btn.id, communicatorId, {
             button_label: btn.label,
