@@ -62,3 +62,22 @@ export async function updateButtonPositions(updates: { id: string, position: num
         )
     )
 }
+
+export async function acknowledgeEvent(
+  eventId: string,
+  acknowledgerId: string,
+  acknowledgmentType: 'on_my_way' | 'give_me_a_moment' | 'i_hear_you'
+) {
+  const supabase = createServiceClient()
+
+  const { error } = await supabase
+    .from('events')
+    .update({
+      acknowledgment_type: acknowledgmentType,
+      acknowledged_at: new Date().toISOString(),
+      acknowledged_by: acknowledgerId,
+    })
+    .eq('id', eventId)
+
+  if (error) throw new Error(error.message)
+}
