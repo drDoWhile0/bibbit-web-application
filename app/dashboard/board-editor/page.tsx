@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client"
 import CommunicatorCard from "@/components/dashboard/CommunicatorCard"
 import DragGrid from "@/components/board/DragGrid"
 import ButtonForm from "@/components/board/ButtonForm"
-import { getOrCreateBoard } from "../communicators/[id]/actions"
+import { getOrCreateBoard, deleteButton } from "../communicators/[id]/actions"
 import { Plus, ExternalLink } from "lucide-react"
 
 interface Communicator {
@@ -81,6 +81,11 @@ export default function BoardEditorPage() {
         setShowForm(false)
     }
 
+    const handleButtonDeleted = async (id: string) => {
+        setButtons((prev) => prev.filter((b) => b.id !== id))
+        await deleteButton(id)
+    }
+
     return (
     <div className="flex gap-6 items-start">
       {/* Left column — communicator picker */}
@@ -141,6 +146,7 @@ export default function BoardEditorPage() {
             <DragGrid
               buttons={buttons}
               onReorder={setButtons}
+              onDelete={handleButtonDeleted}
             />
 
             {showForm && board && (

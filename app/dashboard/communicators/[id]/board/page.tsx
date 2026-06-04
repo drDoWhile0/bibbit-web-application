@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { getOrCreateBoard } from '../actions'
+import { getOrCreateBoard, deleteButton } from '../actions'
 import ButtonForm from '@/components/board/ButtonForm'
 import { Plus } from 'lucide-react'
 import DragGrid from '@/components/board/DragGrid'
@@ -45,6 +45,11 @@ export default function BoardEditorPage() {
     setShowForm(false)
   }
 
+  const handleButtonDeleted = async (id: string) => {
+    setButtons((prev) => prev.filter((b) => b.id !== id))
+    await deleteButton(id)
+  }
+
   if (loading) return <p className="text-sm text-[#9CA3AF]">Loading board...</p>
   if (!board) return <p className="text-sm text-red-400">Board not found.</p>
 
@@ -64,6 +69,7 @@ export default function BoardEditorPage() {
       <DragGrid
         buttons={buttons}
         onReorder={setButtons}
+        onDelete={handleButtonDeleted}
       />
 
       {showForm && board && (
