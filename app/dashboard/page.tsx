@@ -6,6 +6,9 @@ import CommunicatorCard from "@/components/dashboard/CommunicatorCard"
 import AddCommunicatorModal from "@/components/dashboard/AddCommunicatorModal"
 import NotificationFeed from "@/components/dashboard/NotificationFeed"
 import { Plus } from 'lucide-react'
+import FrequencyLineChart from "@/components/dashboard/FrequencyLineChart"
+import DayOfWeekBarChart from "@/components/dashboard/DayOfWeekBarChart"
+import CategoryDonutChart from "@/components/dashboard/CategoryDonutChart"
 
 interface Communicator {
     id: string
@@ -86,6 +89,29 @@ export default function DashboardPage() {
                         ))}
                     </div>
                 )}
+
+                {selectedCommunicator && (
+                    <div className="mt-6 flex flex-col gap-4">
+                        <FrequencyLineChart 
+                            key={selectedCommunicator.id}
+                            communicatorId={selectedCommunicator.id}
+                            communicatorName={selectedCommunicator.name}
+                        />
+                        <div className="grid grid-cols-2 gap-4">
+                            <CategoryDonutChart 
+                                key={`donut-${selectedCommunicator.id}`}
+                                communicatorId={selectedCommunicator.id}
+                                communicatorName={selectedCommunicator.name}
+                            />
+                            <DayOfWeekBarChart 
+                                key={`bar-${selectedCommunicator.id}`}
+                                communicatorId={selectedCommunicator.id}
+                                communicatorName={selectedCommunicator.name}
+                            />
+                        </div>
+                    </div>
+                )}
+
             </div>
 
             {/* Right column — feed */}
