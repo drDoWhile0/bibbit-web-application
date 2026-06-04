@@ -1,15 +1,36 @@
 'use client'
 
 import { useEffect, useState } from "react"
+import dynamic from "next/dynamic"
 import { createClient } from "@/lib/supabase/client"
 import CommunicatorCard from "@/components/dashboard/CommunicatorCard"
 import AddCommunicatorModal from "@/components/dashboard/AddCommunicatorModal"
 import NotificationFeed from "@/components/dashboard/NotificationFeed"
 import { Plus } from 'lucide-react'
-import FrequencyLineChart from "@/components/dashboard/FrequencyLineChart"
-import DayOfWeekBarChart from "@/components/dashboard/DayOfWeekBarChart"
-import CategoryDonutChart from "@/components/dashboard/CategoryDonutChart"
-import InsightsSummary from "@/components/dashboard/InsightsSummary"
+
+const ChartSkeleton = ({ height = 200 }: { height?: number }) => (
+    <div className="bg-white rounded-2xl border border-[#E5E7EB] animate-pulse" style={{ height }} />
+)
+
+const FrequencyLineChart = dynamic(() => import("@/components/dashboard/FrequencyLineChart"), {
+    ssr: false,
+    loading: () => <ChartSkeleton height={220} />,
+})
+
+const CategoryDonutChart = dynamic(() => import("@/components/dashboard/CategoryDonutChart"), {
+    ssr: false,
+    loading: () => <ChartSkeleton height={200} />,
+})
+
+const DayOfWeekBarChart = dynamic(() => import("@/components/dashboard/DayOfWeekBarChart"), {
+    ssr: false,
+    loading: () => <ChartSkeleton height={200} />,
+})
+
+const InsightsSummary = dynamic(() => import("@/components/dashboard/InsightsSummary"), {
+    ssr: false,
+    loading: () => <ChartSkeleton height={120} />,
+})
 
 interface Communicator {
     id: string

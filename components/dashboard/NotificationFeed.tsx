@@ -116,7 +116,15 @@ export default function NotificationFeed({ communicatorId, communicatorName }: P
       {/* Feed */}
       <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-4">
         {events.length === 0 ? (
-          <p className="text-xs text-[#D1D5DB] text-center mt-8">No activity yet.</p>
+          <div className="flex flex-col items-center justify-center flex-1 gap-3 py-12 text-center">
+            <div className="w-10 h-10 rounded-full bg-[#F5F0E8] flex items-center justify-center">
+              <Zap size={18} className="text-[#D1D5DB]" />
+            </div>
+            <p className="text-sm font-medium text-[#9CA3AF]">No activity yet</p>
+            <p className="text-xs text-[#D1D5DB] max-w-[180px]">
+              Button presses will appear here in real time
+            </p>
+          </div>
         ) : (
           events.map((event, index) => (
             <div
