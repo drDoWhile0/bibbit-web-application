@@ -39,7 +39,7 @@ export default function BoardEditorPage() {
     }
     load()
   }, [communicatorId])
-
+  
   const handleButtonCreated = (newButton: Button) => {
     setButtons((prev) => [...prev, newButton])
     setShowForm(false)
