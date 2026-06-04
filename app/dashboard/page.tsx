@@ -9,6 +9,7 @@ import { Plus } from 'lucide-react'
 import FrequencyLineChart from "@/components/dashboard/FrequencyLineChart"
 import DayOfWeekBarChart from "@/components/dashboard/DayOfWeekBarChart"
 import CategoryDonutChart from "@/components/dashboard/CategoryDonutChart"
+import InsightsSummary from "@/components/dashboard/InsightsSummary"
 
 interface Communicator {
     id: string
@@ -21,6 +22,7 @@ export default function DashboardPage() {
     const [selectedCommunicator, setSelectedCommunicator] = useState<Communicator | null>(null)
     const [showModal, setShowModal] = useState(false)
     const [loading, setLoading] = useState(true)
+    const [days, setDays] = useState<7 | 30 | 90>(7)
 
     const fetchCommunicators = async () => {
         const supabase = createClient()
@@ -92,23 +94,32 @@ export default function DashboardPage() {
 
                 {selectedCommunicator && (
                     <div className="mt-6 flex flex-col gap-4">
-                        <FrequencyLineChart 
-                            key={selectedCommunicator.id}
+                        <FrequencyLineChart
+                            key={`line-${selectedCommunicator.id}-${days}`}
                             communicatorId={selectedCommunicator.id}
                             communicatorName={selectedCommunicator.name}
+                            days={days}
+                            onDaysChange={setDays}
                         />
                         <div className="grid grid-cols-2 gap-4">
-                            <CategoryDonutChart 
-                                key={`donut-${selectedCommunicator.id}`}
+                            <CategoryDonutChart
+                                key={`donut-${selectedCommunicator.id}-${days}`}
                                 communicatorId={selectedCommunicator.id}
                                 communicatorName={selectedCommunicator.name}
+                                days={days}
                             />
-                            <DayOfWeekBarChart 
+                            <DayOfWeekBarChart
                                 key={`bar-${selectedCommunicator.id}`}
                                 communicatorId={selectedCommunicator.id}
                                 communicatorName={selectedCommunicator.name}
                             />
                         </div>
+                        <InsightsSummary
+                            key={`insights-${selectedCommunicator.id}-${days}`}
+                            communicatorId={selectedCommunicator.id}
+                            communicatorName={selectedCommunicator.name}
+                            days={days}
+                        />
                     </div>
                 )}
 
