@@ -20,6 +20,8 @@ interface DataPoint {
 interface Props {
     communicatorId: string
     communicatorName: string
+    days: 7 | 30 | 90
+    onDaysChange: (days: 7 | 30 | 90) => void
 }
 
 const RANGES: { label: string; value: 7 | 30 | 90 }[] = [
@@ -36,9 +38,8 @@ function formatDate(dateStr: string, days: number) {
     return date.toLocaleDateString([], { month: 'short', day: 'numeric' })
 }
 
-export default function FrequencyLineChart({ communicatorId, communicatorName }: Props) {
+export default function FrequencyLineChart({ communicatorId, communicatorName, days, onDaysChange }: Props) {
     const [data, setData] = useState<DataPoint[]>([])
-    const [days, setDays] = useState<7 | 30 | 90>(7)
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -66,7 +67,7 @@ export default function FrequencyLineChart({ communicatorId, communicatorName }:
                     {RANGES.map((r) => (
                         <button
                             key={r.value}
-                            onClick={() => setDays(r.value)}
+                            onClick={() => onDaysChange(r.value)}
                             className={`px-3 py-1.5 text-xs font-medium transition-colors ${
                                 days === r.value
                                 ? 'bg-[#4A7C59] text-white'
