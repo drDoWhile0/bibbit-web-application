@@ -123,3 +123,24 @@ export async function fetchCategorySplit(
 
   return { feeling, need, total: feeling + need }
 }
+
+export async function fetchEventsForInsights(
+  communicatorId: string,
+  days: 7 | 30 | 90
+) {
+  const supabase = createServiceClient()
+
+  const since = new Date()
+  since.setDate(since.getDate() - days)
+  since.setHours(0, 0, 0, 0)
+
+  const { data, error } = await supabase
+    .from('events')
+    .select('pressed_at, button_category, button_label')
+    .eq('communicator_id', communicatorId)
+    .gte('pressed_at', since.toISOString())
+    .order('pressed_at', { ascending: true })
+
+  if (error) throw new Error(error.message)
+  return data ?? []
+}
